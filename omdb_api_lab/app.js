@@ -1,34 +1,27 @@
 $(document).ready(function() { 
 
-
-
 function getMovie (){
 	$("form").on("submit",function(e){
 		e.preventDefault();
 	    var movieToFind = $(".movie").val();
 		$("li").remove();
 		findDetails(movieToFind);
-
 	});
 }
 
 function findDetails(movieToFind){
 	$.getJSON("http://www.omdbapi.com/?s=" + movieToFind, function(data){
-		console.log(data);
 		if (data.Response === "False") {
-			console.log("Camilo");
-			$("h4").text("Movie not found. Try again please.");
-
+			$(".noMovie").text("Movie not found. Try again please.");
 		} else {
 			for (var i = 0; i < data.Search.length; i++) {
 			var movies = data.Search[i].Title;			
-			$("ul").append("<li>" + movies + "</li>");
+			$("ul").append("<li class='movieList'>" + movies + "</li>");
 			}			
-		}
+		} showPoster ();
 	});
 	
-
-	// THIS LINES WORK
+	// THESE LINES WORK
 	// $.ajax({
 	// 	url:"http://www.omdbapi.com/?s=" + movieToFind,
 	// 	success: function(data){
@@ -37,6 +30,29 @@ function findDetails(movieToFind){
 	// 		showData(result);
 	// 	}
 	// });
+}
+
+function showPoster () {
+	
+	$("ul").on("click",".movieList",function(e){
+		$('img').empty();
+		var selectedMovie = $(this).text();
+		console.log(selectedMovie);
+		$.ajax({
+			url: "http://www.omdbapi.com/?t=" + selectedMovie,
+			type: 'GET',         //Why poster does not work without "these properties", but movie tittle does?
+  			dataType: 'json',
+			data:{},
+			success: function(data) {
+				if (data.Poster.length > 5) {
+					var info = $("img").attr("src", data.Poster); 
+					$("ul").append(info);		
+				}else {
+					$(".noPoster").text("Poster not availabe. Try again please.");
+				}
+			}
+ 		});
+	});
 }
 
 $(document).ready(getMovie);
